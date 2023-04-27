@@ -1,0 +1,34 @@
+version: "1.0"
+services:
+  employee:
+    build: ./employee
+    ports:
+      - 8081:8081
+    restart: on-failure
+    networks:
+      - my-network
+  department:
+    build: ./department
+    ports:
+      - 8080:8080
+    depends_on:
+      - sql-db
+    restart: on-failure
+    networks:
+      - my-network
+  sql-db:
+    image: mysql:latest
+    ports:
+      - 3307:3306
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --init-file /docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: department_db
+    networks:
+      - my-network
+
+networks:
+  my-network:
